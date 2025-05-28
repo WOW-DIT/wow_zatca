@@ -1,0 +1,264 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "format:{company} - {model}",
+ "creation": "2025-05-21 15:10:09.437368",
+ "default_view": "List",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "general_information_tab",
+  "status",
+  "company",
+  "uuid",
+  "custom_id",
+  "model",
+  "crn_number",
+  "column_break_dltik",
+  "vat_name",
+  "vat_number",
+  "branch_name",
+  "branch_industry",
+  "provider",
+  "type",
+  "api_details_section",
+  "version",
+  "env",
+  "location_information_section",
+  "branch_location",
+  "address",
+  "applicable_for_users",
+  "csr_and_private_key_tab",
+  "otp",
+  "csr",
+  "private_key",
+  "certificate_information_tab",
+  "certificate",
+  "api_secret",
+  "request_id"
+ ],
+ "fields": [
+  {
+   "fieldname": "general_information_tab",
+   "fieldtype": "Tab Break",
+   "label": "General Information"
+  },
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Company",
+   "options": "Company",
+   "reqd": 1
+  },
+  {
+   "fieldname": "uuid",
+   "fieldtype": "Data",
+   "label": "UUID ( Device Serial Number ) ",
+   "read_only": 1,
+   "unique": 1
+  },
+  {
+   "fieldname": "custom_id",
+   "fieldtype": "Data",
+   "label": "Common Name",
+   "reqd": 1
+  },
+  {
+   "fieldname": "model",
+   "fieldtype": "Data",
+   "label": "Model",
+   "reqd": 1
+  },
+  {
+   "fieldname": "crn_number",
+   "fieldtype": "Data",
+   "label": "CRN (company registration number)",
+   "reqd": 1
+  },
+  {
+   "fieldname": "vat_name",
+   "fieldtype": "Data",
+   "label": "Organization Name",
+   "reqd": 1
+  },
+  {
+   "fetch_from": "company.tax_id",
+   "fieldname": "vat_number",
+   "fieldtype": "Data",
+   "label": "Organization ID"
+  },
+  {
+   "fieldname": "branch_name",
+   "fieldtype": "Data",
+   "label": "Branch Name",
+   "reqd": 1
+  },
+  {
+   "fieldname": "branch_industry",
+   "fieldtype": "Data",
+   "label": "Industry",
+   "reqd": 1
+  },
+  {
+   "fieldname": "location_information_section",
+   "fieldtype": "Section Break",
+   "label": "Location Information"
+  },
+  {
+   "fieldname": "address",
+   "fieldtype": "Link",
+   "label": "Address",
+   "options": "Address"
+  },
+  {
+   "fieldname": "applicable_for_users",
+   "fieldtype": "Table",
+   "label": "Applicable for Users",
+   "options": "POS Profile User"
+  },
+  {
+   "fieldname": "csr_and_private_key_tab",
+   "fieldtype": "Tab Break",
+   "label": "Credentials Information"
+  },
+  {
+   "fieldname": "otp",
+   "fieldtype": "Data",
+   "hidden": 1,
+   "label": "OTP"
+  },
+  {
+   "fieldname": "csr",
+   "fieldtype": "Long Text",
+   "label": "CSR",
+   "read_only": 1
+  },
+  {
+   "fieldname": "private_key",
+   "fieldtype": "Text",
+   "label": "Private Key",
+   "read_only": 1
+  },
+  {
+   "fieldname": "certificate_information_tab",
+   "fieldtype": "Tab Break",
+   "label": "Certificate Information"
+  },
+  {
+   "fieldname": "certificate",
+   "fieldtype": "Long Text",
+   "label": "Certificate",
+   "read_only": 1
+  },
+  {
+   "fieldname": "api_secret",
+   "fieldtype": "Data",
+   "label": "Api Secret",
+   "read_only": 1
+  },
+  {
+   "fieldname": "request_id",
+   "fieldtype": "Data",
+   "label": "Request ID",
+   "read_only": 1
+  },
+  {
+   "fieldname": "type",
+   "fieldtype": "Select",
+   "label": "Type",
+   "options": "B2B\nB2C\nB2B & B2C"
+  },
+  {
+   "default": "Simulation",
+   "fieldname": "env",
+   "fieldtype": "Select",
+   "label": "Environment",
+   "options": "Simulation\nProduction"
+  },
+  {
+   "default": "V2",
+   "fieldname": "version",
+   "fieldtype": "Select",
+   "label": "Version",
+   "options": "V2"
+  },
+  {
+   "fieldname": "provider",
+   "fieldtype": "Link",
+   "label": "Provider",
+   "options": "Company",
+   "reqd": 1
+  },
+  {
+   "fieldname": "api_details_section",
+   "fieldtype": "Section Break",
+   "label": "API Details"
+  },
+  {
+   "fieldname": "column_break_dltik",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "branch_location",
+   "fieldtype": "Data",
+   "label": "Branch Location",
+   "reqd": 1
+  },
+  {
+   "default": "Pending",
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "label": "Status",
+   "options": "Pending\nRequested\nCompliance\nProduction\nExpired",
+   "read_only": 1
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2025-05-28 10:41:55.928362",
+ "modified_by": "Administrator",
+ "module": "Zatca",
+ "name": "EGSUnit",
+ "naming_rule": "Expression",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [
+  {
+   "color": "Orange",
+   "title": "Pending"
+  },
+  {
+   "color": "Yellow",
+   "title": "Requested"
+  },
+  {
+   "color": "Light Blue",
+   "title": "Compliance"
+  },
+  {
+   "color": "Green",
+   "title": "Production"
+  },
+  {
+   "color": "Red",
+   "title": "Expired"
+  }
+ ]
+}
