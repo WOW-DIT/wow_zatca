@@ -165,7 +165,7 @@ def sign_invoice(doc, method):
                 "postal_zone": customerAddress.pincode if b2b else "",
                 "CRN_number": customerAddress.crn if b2b else "",
                 "VAT_name": customer.name if b2b else "",
-                "VAT_number": customerAddress.vat_tax_no if b2b else ""
+                "VAT_number": customerAddress.vat_id if b2b else ""
             }
         },
         "certificate": certificate,

@@ -179,11 +179,6 @@ def standard_invoice(uuid, pih, counter, vat_id, crn, type, is_credit_debit=Fals
         </cac:Item>
         <cac:Price>
             <cbc:PriceAmount currencyID="SAR">2.00</cbc:PriceAmount>
-            <cac:AllowanceCharge>
-               <cbc:ChargeIndicator>true</cbc:ChargeIndicator>
-               <cbc:AllowanceChargeReason>discount</cbc:AllowanceChargeReason>
-               <cbc:Amount currencyID="SAR">0.00</cbc:Amount>
-            </cac:AllowanceCharge>
         </cac:Price>
     </cac:InvoiceLine>
 </Invoice>"""

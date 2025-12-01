@@ -7,7 +7,6 @@ frappe.ui.form.on('EGSUnit', {
 
 		if(status === "Pending") {
 			frm.add_custom_button('Issue Production Certificate', () => {
-				frappe.show_progress(__('Onboarding EGS Unit'), 0, 100, "Progress Started");
 				fullOnboarding(frm);
 			}, 'Issue Production Certificate');
 

@@ -17,4 +17,3 @@ def hash(canonicalized_xml):
     invoice_digest = hasher.digest()
 
     return base64.b64encode(invoice_digest).decode()
-     

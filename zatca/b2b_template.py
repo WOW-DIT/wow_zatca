@@ -2,7 +2,7 @@ from .hasher import canonicalize_xml, hash
 import base64
 import lxml
 import frappe
-
+import os
 
 def credit_reference(is_credit_debit=False, prev_invoice=None):
     if is_credit_debit == False:
@@ -85,7 +85,7 @@ def standard_invoice(
                 </cac:Country>
             </cac:PostalAddress>
             <cac:PartyTaxScheme>
-                <cbc:CompanyID>{company.tax_id}</cbc:CompanyID>
+                <cbc:CompanyID>{address.vat_id}</cbc:CompanyID>
                 <cac:TaxScheme>
                     <cbc:ID>VAT</cbc:ID>
                 </cac:TaxScheme>
@@ -108,7 +108,7 @@ def standard_invoice(
                 </cac:Country>
             </cac:PostalAddress>
             <cac:PartyTaxScheme>
-                <cbc:CompanyID>{customer.tax_id}</cbc:CompanyID>
+                <cbc:CompanyID>{customer_address.vat_id}</cbc:CompanyID>
                 <cac:TaxScheme>
                     <cbc:ID>VAT</cbc:ID>
                 </cac:TaxScheme>
@@ -137,13 +137,13 @@ def standard_invoice(
         </cac:TaxCategory>
     </cac:AllowanceCharge>
     <cac:TaxTotal>
-        <cbc:TaxAmount currencyID="SAR">{invoice.grand_total - invoice.total}</cbc:TaxAmount>
+        <cbc:TaxAmount currencyID="SAR">{round((invoice.grand_total - invoice.total), 2)}</cbc:TaxAmount>
     </cac:TaxTotal>
     <cac:TaxTotal>
-        <cbc:TaxAmount currencyID="SAR">{invoice.grand_total - invoice.total}</cbc:TaxAmount>
+        <cbc:TaxAmount currencyID="SAR">{round((invoice.grand_total - invoice.total), 2)}</cbc:TaxAmount>
         <cac:TaxSubtotal>
-            <cbc:TaxableAmount currencyID="SAR">{invoice.total}</cbc:TaxableAmount>
-            <cbc:TaxAmount currencyID="SAR">{invoice.grand_total - invoice.total}</cbc:TaxAmount>
+            <cbc:TaxableAmount currencyID="SAR">{round(invoice.total, 2)}</cbc:TaxableAmount>
+            <cbc:TaxAmount currencyID="SAR">{round((invoice.grand_total - invoice.total), 2)}</cbc:TaxAmount>
              <cac:TaxCategory>
                  <cbc:ID>S</cbc:ID>
                  <cbc:Percent>15.00</cbc:Percent>
@@ -154,12 +154,12 @@ def standard_invoice(
         </cac:TaxSubtotal>
     </cac:TaxTotal>
     <cac:LegalMonetaryTotal>
-        <cbc:LineExtensionAmount currencyID="SAR">{invoice.total}</cbc:LineExtensionAmount>
-        <cbc:TaxExclusiveAmount currencyID="SAR">{invoice.total}</cbc:TaxExclusiveAmount>
-        <cbc:TaxInclusiveAmount currencyID="SAR">{invoice.grand_total}</cbc:TaxInclusiveAmount>
+        <cbc:LineExtensionAmount currencyID="SAR">{round(invoice.total, 2)}</cbc:LineExtensionAmount>
+        <cbc:TaxExclusiveAmount currencyID="SAR">{round(invoice.total, 2)}</cbc:TaxExclusiveAmount>
+        <cbc:TaxInclusiveAmount currencyID="SAR">{round(invoice.grand_total, 2)}</cbc:TaxInclusiveAmount>
         <cbc:AllowanceTotalAmount currencyID="SAR">0.00</cbc:AllowanceTotalAmount>
         <cbc:PrepaidAmount currencyID="SAR">0.00</cbc:PrepaidAmount>
-        <cbc:PayableAmount currencyID="SAR">{invoice.grand_total}</cbc:PayableAmount>
+        <cbc:PayableAmount currencyID="SAR">{round(invoice.grand_total, 2)}</cbc:PayableAmount>
     </cac:LegalMonetaryTotal>{get_lines(invoice.items)}
 </Invoice>"""
     
@@ -173,13 +173,13 @@ def standard_invoice(
 def get_lines(items):
     lines = []
     for id, item in enumerate(items):
-        amount_with_vat = item.amount + (item.amount * 0.15)
-        vat_amount = (item.amount * 0.15)
+        amount_with_vat = round(item.amount + (item.amount * 0.15), 2)
+        vat_amount = round((item.amount * 0.15), 2)
 
         line = f"""<cac:InvoiceLine>
         <cbc:ID>{id+1}</cbc:ID>
         <cbc:InvoicedQuantity unitCode="PCE">{item.qty}</cbc:InvoicedQuantity>
-        <cbc:LineExtensionAmount currencyID="SAR">{item.amount}</cbc:LineExtensionAmount>
+        <cbc:LineExtensionAmount currencyID="SAR">{round(item.amount, 2)}</cbc:LineExtensionAmount>
         <cac:TaxTotal>
              <cbc:TaxAmount currencyID="SAR">{vat_amount}</cbc:TaxAmount>
              <cbc:RoundingAmount currencyID="SAR">{amount_with_vat}</cbc:RoundingAmount>
@@ -195,7 +195,7 @@ def get_lines(items):
             </cac:ClassifiedTaxCategory>
         </cac:Item>
         <cac:Price>
-            <cbc:PriceAmount currencyID="SAR">{item.rate}</cbc:PriceAmount>
+            <cbc:PriceAmount currencyID="SAR">{round(item.rate, 2)}</cbc:PriceAmount>
             <cac:AllowanceCharge>
                <cbc:ChargeIndicator>true</cbc:ChargeIndicator>
                <cbc:AllowanceChargeReason>discount</cbc:AllowanceChargeReason>

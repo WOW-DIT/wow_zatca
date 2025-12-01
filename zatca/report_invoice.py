@@ -105,7 +105,7 @@ def report_invoice(invoice, csid, secret, version, env):
 
     elif status_code == 400:
         ## Save warning message
-        invoice.error_message = str(response.json()["validationResults"]["errorMessages"])
+        invoice.error_message = str(response.json()["validationResults"])
         frappe.throw(f"ERROR: Invoice reporting failed: {invoice.error_message}")
 
 
