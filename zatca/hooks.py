@@ -53,10 +53,12 @@ app_license = "MIT"
 # ----------
 
 # add methods and filters to jinja environment
-# jinja = {
-# 	"methods": "zatca.utils.jinja_methods",
-# 	"filters": "zatca.utils.jinja_filters"
-# }
+jinja = {
+	"methods":[
+		"zatca.zatca_bills.bill_address",
+		"zatca.zatca_bills.getBase64"
+	]
+}
 
 # Installation
 # ------------
@@ -118,7 +120,10 @@ app_license = "MIT"
 
 doc_events = {
 	"Sales Invoice": {
-		"on_submit": "zatca.api.sign_invoice"
+		"before_submit": "zatca.api.sign_invoice"
+	},
+    "POS Invoice": {
+		"before_submit": "zatca.api.sign_invoice"
 	}
 }
 

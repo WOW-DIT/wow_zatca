@@ -58,7 +58,7 @@ def sign_invoice(doc, method):
     b2b = False
     items = []
 
-    if customer.customer_type == "Company" and doc.invoice_type == "B2B":
+    if customer.customer_type == "Company" and doc.doctype != "POS Invoice":
         b2b = True
         customerAddresses = frappe.get_list('Address', fields=['name', 'address_title', 'address_line1', 'address_line2', 'state','city', 'country', 'pincode', 'additional_no', 'building_no', 'vat_id' , 'crn'])
         for add in customerAddresses:
@@ -70,20 +70,58 @@ def sign_invoice(doc, method):
 
     item_id = 1
     for item in invoice_items:
-        items.append({"id":str(item_id) , "name":item.item_name , "quantity":item.qty , "tax_exclusive_price" :(item.amount) , "VAT_percent":0.15})
+        item_dict = {"id":str(item_id) , "name":item.item_name , "quantity":item.qty , "tax_exclusive_price" :(item.amount) , "VAT_percent":0.15}
+        
+        if item.discount_amount:
+            item_dict["discounts"] = [{"amount": item.discount_amount, "reason": "discount"}]
+        
+        items.append(item_dict)
         item_id += 1
 
-    if b2b == True and len(customerAddress) == 0:
-        frappe.throw("Customer Address Information is missing")
+    if b2b:
+        if len(customerAddress) == 0:
+            frappe.throw("Customer Address Information is missing")
+
+        if customerAddress.vat_id:
+            frappe.throw("Customer VAT ID is missing")
+
+        if customerAddress.crn:
+            frappe.throw("Customer Registration Number (CRN) is missing")
+
 
     previous_invoices = frappe.db.sql("""
-        SELECT i.name, i.invoice_counter AS counter, i.invoice_hash
-        FROM `tabSales Invoice` AS i
-        WHERE i.company = %s AND i.docstatus = %s AND i.egsunit = %s
-        ORDER BY i.invoice_counter DESC
-        LIMIT 1;
-    """, (company.name, 1, egsunit.name), as_dict=True)
+        SELECT
+            name,
+            invoice_counter AS counter,
+            invoice_hash,
+            doctype
+        FROM (
+            SELECT
+                name,
+                invoice_counter,
+                invoice_hash,
+                'Sales Invoice' AS doctype
+            FROM `tabSales Invoice`
+            WHERE company = %s
+            AND docstatus = 1
+            AND egsunit = %s
 
+            UNION ALL
+
+            SELECT
+                name,
+                invoice_counter,
+                invoice_hash,
+                'POS Invoice' AS doctype
+            FROM `tabPOS Invoice`
+            WHERE company = %s
+            AND docstatus = 1
+            AND egsunit = %s
+        ) t
+        ORDER BY counter DESC
+        LIMIT 1
+    """, (company.name, egsunit.name, company.name, egsunit.name), as_dict=True)
+    
     if len(previous_invoices) > 0:
         previous_invoice = previous_invoices[0]
         invoice_counter = int(previous_invoice.counter) + 1

@@ -52,10 +52,10 @@ def standard_invoice(
     invoice_str = f"""<?xml version="1.0" encoding="UTF-8"?>
 <Invoice xmlns="urn:oasis:names:specification:ubl:schema:xsd:Invoice-2" xmlns:cac="urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2" xmlns:cbc="urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2" xmlns:ext="urn:oasis:names:specification:ubl:schema:xsd:CommonExtensionComponents-2">
     <cbc:ProfileID>reporting:1.0</cbc:ProfileID>
-    <cbc:ID>INV-001</cbc:ID>
+    <cbc:ID>{invoice.name}</cbc:ID>
     <cbc:UUID>{uuid}</cbc:UUID>
-    <cbc:IssueDate>2025-05-01</cbc:IssueDate>
-    <cbc:IssueTime>12:21:28</cbc:IssueTime>
+    <cbc:IssueDate>{invoice.posting_date}</cbc:IssueDate>
+    <cbc:IssueTime>{invoice.posting_time.split(".")[0]}</cbc:IssueTime>
     <cbc:InvoiceTypeCode name="0100000">{invoice_type}</cbc:InvoiceTypeCode>
     <cbc:DocumentCurrencyCode>SAR</cbc:DocumentCurrencyCode>
     <cbc:TaxCurrencyCode>SAR</cbc:TaxCurrencyCode>{credit_reference(is_credit_debit, prev_invoice)}
@@ -76,7 +76,7 @@ def standard_invoice(
             </cac:PartyIdentification>
             <cac:PostalAddress>
                 <cbc:StreetName>{address.address_line1} | {address.address_line2}</cbc:StreetName>
-                <cbc:BuildingNumber>2322</cbc:BuildingNumber>
+                <cbc:BuildingNumber>{address.building_no}</cbc:BuildingNumber>
                 <cbc:CitySubdivisionName>{address.city_subdivision}</cbc:CitySubdivisionName>
                 <cbc:CityName>{address.city}</cbc:CityName>
                 <cbc:PostalZone>{address.pincode}</cbc:PostalZone>
@@ -85,7 +85,7 @@ def standard_invoice(
                 </cac:Country>
             </cac:PostalAddress>
             <cac:PartyTaxScheme>
-                <cbc:CompanyID>{address.vat_id}</cbc:CompanyID>
+                <cbc:CompanyID>{company.tax_id}</cbc:CompanyID>
                 <cac:TaxScheme>
                     <cbc:ID>VAT</cbc:ID>
                 </cac:TaxScheme>
@@ -97,9 +97,12 @@ def standard_invoice(
     </cac:AccountingSupplierParty>
     <cac:AccountingCustomerParty>
         <cac:Party>
+            <cac:PartyIdentification>
+                <cbc:ID schemeID="CRN">{customer_address.crn}</cbc:ID>
+            </cac:PartyIdentification>
             <cac:PostalAddress>
                 <cbc:StreetName>{customer_address.address_line1} | {customer_address.address_line2}</cbc:StreetName>
-                <cbc:BuildingNumber>2322</cbc:BuildingNumber>
+                <cbc:BuildingNumber>{customer_address.building_no}</cbc:BuildingNumber>
                 <cbc:CitySubdivisionName>{customer_address.city_subdivision}</cbc:CitySubdivisionName>
                 <cbc:CityName>{customer_address.city}</cbc:CityName>
                 <cbc:PostalZone>{customer_address.pincode}</cbc:PostalZone>
@@ -179,7 +182,7 @@ def get_lines(items):
         line = f"""<cac:InvoiceLine>
         <cbc:ID>{id+1}</cbc:ID>
         <cbc:InvoicedQuantity unitCode="PCE">{item.qty}</cbc:InvoicedQuantity>
-        <cbc:LineExtensionAmount currencyID="SAR">{round(item.amount, 2)}</cbc:LineExtensionAmount>
+        <cbc:LineExtensionAmount currencyID="SAR">{round(item.amount, 2):.2f}</cbc:LineExtensionAmount>{line_discount(item.discount_amount, True)}
         <cac:TaxTotal>
              <cbc:TaxAmount currencyID="SAR">{vat_amount}</cbc:TaxAmount>
              <cbc:RoundingAmount currencyID="SAR">{amount_with_vat}</cbc:RoundingAmount>
@@ -206,3 +209,14 @@ def get_lines(items):
         lines.append(line)
 
     return "\n    ".join(lines)
+
+def line_discount(discount_amount: float, is_line=False):
+    if discount_amount is None:
+        return ""
+    
+    if is_line:
+        return f"""\n        <cac:AllowanceCharge>
+            <cbc:ChargeIndicator>false</cbc:ChargeIndicator>
+            <cbc:AllowanceChargeReason>discount</cbc:AllowanceChargeReason>
+            <cbc:Amount currencyID="SAR">{round(discount_amount, 2):.2f}</cbc:Amount>
+        </cac:AllowanceCharge>"""
